@@ -15,48 +15,62 @@ function Counter() {
         .then(response => response.json())
         .then(data =>{
             console.log("resonse received is",data);
-            if(data!=null)
-                setCurrentValue(data);
+            if(data.counter!=null)
+                setCurrentValue(data.counter);
         })
         .catch(err => console.log('Error occured is', err));
     }
 
     useEffect(()=>{
-        //fetchCounter();
+        fetchCounter();
     },[])
 
     async function handleChange(newValue) {
+        console.log("put api called");
         if (newValue > maxValue)
             return;
         setIsLoading(true);
-        setTimeout(() => {
+        fetch(`${baseUrl}/counter`,{
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                counter: newValue
+            })
+        })
+        .then(response => response.json())
+        .then(data =>{
+            console.log("resonse received is",data.msg);
             setCurrentValue(Number(newValue));
             setIsLoading(false);
-        }, 2000)
-    
-        // try {
-        //     // const response =  await fetch(
-        //     //     `${baseUrl}/counter`,
-        //     //     {
-        //     //       method: 'PUT',
-        //     //       headers: {
-        //     //         'Content-Type': 'application/json'
-        //     //       },
-        //     //       body: JSON.stringify({
-        //     //         counter:newValue
-        //     //       })
-        //     //     }
-        //     //   );
-        //     //   if (!response.ok) {
-        //     //     throw new Error('Something went wrong!');
-        //     //   }
-        //     //   const resData = await response.json();
-        //     //   console.log("response received for chatrooms",resData);
+        })
+        .catch(err => console.log('Error occured is', err));
+    }
 
-        // }
-        // catch (e) {
-        //     alert(e);
-        // }
+    function handleStartInputChange(e)
+    {
+        if(Number(e.target.value)<=Number(maxValue))
+            setStartValue(e.target.value);
+    }
+
+    function handleStartInputBlur(e)
+    {
+        if(Number(e.target.value)<=Number(maxValue) && Number(currentValue)!=Number(e.target.value))
+            handleChange(e.target.value);
+    }
+
+    function handleCurrentInputChange(e)
+    {
+        console.log("current value changed",e.target.value);
+        if(Number(e.target.value)<=Number(maxValue))
+            setCurrentValue(e.target.value);
+    }
+
+    function handleCurrentInputBlur(e)
+    {
+        if(Number(e.target.value)<=Number(maxValue))
+            handleChange(e.target.value);
     }
 
     return (
@@ -67,7 +81,7 @@ function Counter() {
                         <label>Start Value</label>
                     </div>
                     <div class="input">
-                        <input type="number" style={{ border: 'none' }} value={startValue} onChange={(e) => setStartValue(e.target.value)} />
+                        <input type="number" class="inputValue" value={startValue} onChange={handleStartInputChange} onBlur={handleStartInputBlur} />
                     </div>
                 </div>
                 <div>
@@ -75,12 +89,10 @@ function Counter() {
                         <label>Max Value</label>
                     </div>
                     <div class="input">
-                        <input type="number" style={{ border: 'none' }} value={maxValue} onChange={(e) => setMaxValue(e.target.value)} placeholder="Enter" />
+                        <input type="number" class="inputValue" value={maxValue} onChange={(e) => setMaxValue(e.target.value)} placeholder="Enter" />
                     </div>
                 </div>
-                <div class="buttonContainer">
-                    <button class="button" onClick={() => handleChange(startValue)}>Save</button>
-                </div>
+                
             </div>
             <div class="counterContainer">
                 <div class="loadingContainer">
@@ -90,13 +102,13 @@ function Counter() {
                             <div style={{ marginLeft: '15px' }}>Saving Counter Value</div>
                         </>
                         :
-                        <div style={{ width: '30px', height: '30px' }}></div>
+                        <div style={{ width: '26px', height: '26px' }}></div>
                     }
                 </div>
                 <div class='row'>
                     <div class='column1' onClick={() => handleChange(Number(currentValue) - 1)}>-</div>
                     <div class='column2'>
-                        <input value={currentValue} onChange={(e)=>setCurrentValue(e.target.value)} class="counterInput"></input>
+                        <input class="counterInput" value={currentValue} onChange={handleCurrentInputChange} onBlur={handleCurrentInputBlur}></input>
                     </div>
                     <div class='column3' onClick={() => handleChange(Number(currentValue) + 1)}>+</div>
                 </div>
