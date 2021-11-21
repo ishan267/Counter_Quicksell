@@ -25,7 +25,7 @@ function Counter() {
         fetchCounter();
     },[])
 
-    async function handleChange(newValue) {
+    function handleChange(newValue) {
         console.log("put api called");
         if (newValue > maxValue)
             return;
